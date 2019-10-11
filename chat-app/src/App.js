@@ -41,6 +41,7 @@ function App() {
 		(async () => {
 			const res = await fetch(`${API_BASE}/api/account`, {
 				method: 'POST',
+				headers: { 'Accept': 'text/plain' },
 			});
 			const data = await res.text();
 			localStorage.setItem('account', data);
@@ -50,23 +51,24 @@ function App() {
 
 	// Messages: List of messages
 	const [messages, setMessages] = useState([
-		{ id: 0, to: "1", from: "0", message: "Hello! How can I help you?" },
-		{ id: 1, to: "0", from: "1", message: "Dadadadda" },
-		{ id: 2, to: "1", from: "0", message: "Hello! How can I help you?" },
-		{ id: 3, to: "0", from: "1", message: "Dadadadda" },
-		{ id: 4, to: "1", from: "0", message: "Hello! How can I help you?" },
-		{ id: 5, to: "0", from: "1", message: "Dadadadda" },
-		{ id: 6, to: "1", from: "0", message: "Hello! How can I help you?" },
-		{ id: 7, to: "0", from: "1", message: "Dadadadda" },
-		{ id: 8, to: "1", from: "0", message: "Hello! How can I help you?" },
-		{ id: 9, to: "0", from: "1", message: "Dadadadda" },
-		{ id: 10, to: "1", from: "0", message: "Hello! How can I help you?" },
-		{ id: 11, to: "0", from: "1", message: "Dadadadda" },
-		{ id: 12, to: "1", from: "0", message: "Hello! How can I help you?" },
-		{ id: 13, to: "0", from: "1", message: "Dadadadda" },
-		{ id: 14, to: "1", from: "0", message: "Hello! How can I help you?" },
-		{ id: 15, to: "0", from: "1", message: "Dadadadda" },
+		{ id: 0, to: '1', from: '0', message: 'Hello! How can I help you?' },
+		{ id: 1, to: '0', from: '1', message: 'Dadadadda' },
+		{ id: 2, to: '1', from: '0', message: 'Hello! How can I help you?' },
+		{ id: 3, to: '0', from: '1', message: 'Dadadadda' },
+		{ id: 4, to: '1', from: '0', message: 'Hello! How can I help you?' },
+		{ id: 5, to: '0', from: '1', message: 'Dadadadda' },
+		{ id: 6, to: '1', from: '0', message: 'Hello! How can I help you?' },
+		{ id: 7, to: '0', from: '1', message: 'Dadadadda' },
+		{ id: 8, to: '1', from: '0', message: 'Hello! How can I help you?' },
+		{ id: 9, to: '0', from: '1', message: 'Dadadadda' },
+		{ id: 10, to: '1', from: '0', message: 'Hello! How can I help you?' },
+		{ id: 11, to: '0', from: '1', message: 'Dadadadda' },
+		{ id: 12, to: '1', from: '0', message: 'Hello! How can I help you?' },
+		{ id: 13, to: '0', from: '1', message: 'Dadadadda' },
+		{ id: 14, to: '1', from: '0', message: 'Hello! How can I help you?' },
+		{ id: 15, to: '0', from: '1', message: 'Dadadadda' },
 	]);
+
 	const messageComponents = messages.map(message => 
 		<Message key={message.id} from={message.from} to={message.to}>{message.message}</Message>
 	);
@@ -77,33 +79,55 @@ function App() {
 	
 	async function sendMessage(e) {
 		setSending(true);
-		const res = await fetch(`${API_BASE}/api/messages?account=${account}`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				to: "0",
-				from: "1",
-				message,
-			}),
-		});
-		if (!res.ok) {
+		console.log('sending message', message);
+		let res;
+		try {
+			res = await fetch(`${API_BASE}/api/messages`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					//'Accept': 'text/plain',
+					'Authorization': `Bearer ${account}`,
+				},
+				body: JSON.stringify({
+					to: '0',
+					message,
+				}),
+			});
+			if (!res.ok) {
+				throw new Error(await res.text());
+			}
+		} catch (e) {
 			setSending(false);
-			console.error(await res.text());
+			console.error(e);
 			return;
 		}
+		setSending(false);
+		setMessage('');
 	}
 
 	// Messages: Subscribe to incoming
 	useEffect(() => {
+		// obtain initial messages
+		fetch(`${API_BASE}/api/messages`, {
+			method: 'GET',
+			headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${account}` },
+		}).then(res => {
+			return res.json();
+		}).then(data => {
+			setMessages(data);
+		});
+
 		const incomingMessages = new EventSource(`${API_BASE}/api/messages?account=${account}`);
-		incomingMessages.addEventListener("new", async e => {
-			const res = await fetch(`${API_BASE}/api/messages/${e.data}?account=${account}`);
+		incomingMessages.addEventListener('change', async e => {
+			const res = await fetch(`${API_BASE}/api/messages/${e.data}`, {
+				method: 'GET',
+				headers: { 'Accept': 'application/json' },
+			});
 			const message = await res.json();
 			// add message
 			setMessages(messages => {
-				return messages.concat([
-					{ to: "0", message }
-				]);
+				return messages.concat([message]);
 			});
 		});
 
@@ -138,6 +162,7 @@ function App() {
 							disabled={sending}
 							inputProps={{ 'aria-label': 'Send message' }}
 							onChange={e => setMessage(e.target.value)}
+							value={message}
 						/>
 						<IconButton
 							edge="end" color="primary"
