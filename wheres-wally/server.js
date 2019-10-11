@@ -76,6 +76,7 @@ app.use(async ctx => {
 			ctx.body = "Bad Request";
 			return;
 		}
+		ctx.type = "application/json";
 		ctx.body = JSON.stringify(active[id]);
 		return;
 	}
