@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Where's Wally?</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+	</head>
+	<body>
+		<section class="hero is-primary">
+			<div class="hero-body">
+				<div class="container has-text-centered">
+					<h1 style="padding-bottom: 2rem"><i class="fas fa-fingerprint fa-5x"></i></h1>
+					<h1 class="title">Where's Wally?</h1>
+					<h2 class="subtitle">Test your site with 51 people</h2>
+				</div>
+			</div>
+		</section>
+		<section class="section">
+			<div class="container">
+				<div class="columns">
+					<div class="column"></div>
+					<div class="column is-narrow">
+						<div class="content">
+							<blockquote>Did you know, privacy is a hard problem?</blockquote>
+						</div>
+
+						<div class="field has-addons">
+							<div class="control is-expanded has-icons-left">
+								<input id="url" class="input is-large" type="url" placeholder="http://...">
+								<span class="icon is-left is-large">
+									<i class="fas fa-globe-asia"></i>
+								</span>
+							</div>
+							<div class="control">
+								<button id="try" class="button is-primary is-large" type="button">
+									Go!
+								</button>
+							</div>
+						</div>
+
+						<progress id="progress" class="progress is-primary" value="0" max="100">15%</progress>
+					</div>
+					<div class="column"></div>
+				</div>
+			</div>
+		</section>
+	</body>
+
+	<script>
+		document.querySelector('#try').addEventListener('click', e => {
+			document.querySelectorAll('input, button').forEach(element => element.disabled = true);
+			const url = document.querySelector('#url').value;
+			document.querySelector('#progress').value = null;
+			
+			fetch(`add?url=${encodeURIComponent(url)}`, {
+				method: 'POST',
+			}).then(result => {
+				if (!result.ok) {
+					return result.text().then(text => {
+						throw new Error(text);
+					});
+				}
+				return result.text();
+			}).catch(e => {
+				document.querySelector('blockquote').innerText = e.message;
+				document.querySelectorAll('input, button').forEach(element => element.disabled = false);
+				document.querySelector('#progress').value = 0;
+				throw new Error(e.message);
+			}).then(text => {
+				const waiter = setInterval(() => {
+					fetch(`status?id=${text}`).then(result => {
+						return result.json();
+					}, e => {
+						document.querySelector('blockquote').innerText = e.message;
+						throw new Error(e.message);
+					}).then(data => {
+						document.querySelector('#progress').value = data.progress;
+						if (data.done === true) {
+							document.querySelector('#progress').value = 100;
+							clearInterval(waiter);
+							document.querySelectorAll('input, button').forEach(element => element.disabled = false);
+						}
+					});
+				}, 1000);
+			});
+
+			//document.querySelectorAll('input, button').forEach(element => element.disabled = false);
+		});
+	</script>
+	<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+</html>

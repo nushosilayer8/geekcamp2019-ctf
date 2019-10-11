@@ -1,0 +1,3 @@
+:2015 {
+	log / access.log "{when} \"{method} {uri} {proto}\" {status} {>X-Flag}"
+}
