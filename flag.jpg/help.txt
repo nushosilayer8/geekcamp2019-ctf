@@ -1,0 +1,5 @@
+https://en.wikipedia.org/wiki/JPEG#Syntax_and_structure
+
+$ gm identify flag.jpg
+gm identify: Unsupported JPEG process: SOF type 0xc5 (flag.jpg).
+gm identify: Request did not return an image.
