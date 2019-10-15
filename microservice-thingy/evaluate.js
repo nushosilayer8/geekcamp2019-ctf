@@ -6,9 +6,9 @@ const decoder = new TextDecoder();
 // Templates
 
 const indexpageContent = readFileSync("index.html");
-const indexpage = () => indexPageContent;
+const indexpage = () => indexpageContent;
 const sourcepageContent = readFileSync("evaluate.js");
-const sourcepage = () => sourcePageContent;
+const sourcepage = () => sourcepageContent;
 const flagpageContent = readFileSync("flag.txt");
 const flagpage = () => flagpageContent;
 
