@@ -26,8 +26,11 @@ def equation_to_code():
     resp = make_response(code, status)
     resp.headers['Content-Type'] = 'text/plain'
     return resp
-    
+
 def tokenize_equation(equation):
+    """
+    Parse a string as Python tokens
+    """
     tokens = tokenize.tokenize(BytesIO(equation.encode('utf-8')).readline)
     for token in tokens:
         toknum, tokval, _, _, _ = token
@@ -35,6 +38,9 @@ def tokenize_equation(equation):
         yield toknum, tokval, toktype
 
 def parse_equation(equation):
+    """
+    Read an equation and turn it into JavaScript code
+    """
     tokens = tokenize_equation(equation)
     result = []
     append_close = False
@@ -47,18 +53,22 @@ def parse_equation(equation):
             # Ignore
             continue
         elif toknum == tokenize.NAME:
+            # There should NEVER be a operand before an operand
             if previous_is_operand(prev):
                 raise Exception('missingoperatior')
+            # Names must be lowercase
             if not re.match('^[a-z]+$', tokval):
                 raise Exception('badname')
             result.append(tokval)
         elif toknum == tokenize.NUMBER:
+            # There should NEVER be a operand before an operand
             if previous_is_operand(prev):
                 raise Exception('missingoperatior')
             result.append(tokval)
         elif toknum == tokenize.OP:
             if toktype == tokenize.LPAR:
-                if previous_is_operand(prev):
+                # There should ONLY be +-*/^ before a (
+                if not previous_is_operator(prev):
                     raise Exception('missingoperatior')
                 result.append(tokval)
             elif toktype == tokenize.RPAR:
@@ -72,8 +82,14 @@ def parse_equation(equation):
             elif toktype == tokenize.SLASH:
                 result.append(tokval)
             elif toktype == tokenize.CIRCUMFLEX:
+                if not previous_is_operand(prev):
+                    raise Exception('missingoperand')
+                # This sucks, but we only can do powers to a fixed operand. :(
+                # Remove the previous operand and put it in front of 'Math.pow( '
                 last = result.pop()
-                result.append('Math.pow( {},'.format(last))
+                result.append('Math.pow( {} ,'.format(last))
+                # Tell the next operand to put the closing bracket
+                # If it fails to do so, we'll just have an invalid expression
                 append_close = True
                 prev = (toknum, tokval)
                 continue
@@ -93,5 +109,12 @@ def previous_is_operand(prev):
     if not prev:
         return False
     if prev[0] != tokenize.NAME and prev[0] != tokenize.NUMBER:
+        return False
+    return True
+
+def previous_is_operator(prev):
+    if not prev:
+        return True
+    if prev[0] != tokenize.PLUS and prev[0] != tokenize.MINUS and prev[0] != tokenize.STAR and prev[0] != tokenize.SLASH and prev[0] != tokenize.CIRCUMFLEX:
         return False
     return True
