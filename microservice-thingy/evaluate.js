@@ -14,8 +14,7 @@ const flagpage = () => flagpageContent;
 
 // Stuff
 
-//const E2C_ENDPOINT = "https://e2c.mst.ctf.makerforce.io/equation_to_code";
-const E2C_ENDPOINT = "http://localhost:5000/equation_to_code";
+const E2C_ENDPOINT = "https://e2c.mst.ctf.makerforce.io/"; // Check this out! Very cool microservice
 
 // Server
 
@@ -46,7 +45,7 @@ const routes = {
 			const body = await req.body();
 			const { equation, substitutions } = JSON.parse(decoder.decode(body));
 			
-			const data = await fetch(E2C_ENDPOINT, {
+			const data = await fetch(E2C_ENDPOINT + "equation_to_code", {
 				method: 'POST',
 				body: `e=${encodeURIComponent(equation.toString())}`, // Ensure it is a string
 				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
