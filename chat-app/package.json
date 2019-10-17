@@ -8,6 +8,7 @@
     "koa": "^2.8.2",
     "koa-bodyparser": "^4.2.1",
     "koa-static": "^5.0.0",
+    "puppeteer": "^1.20.0",
     "rethinkdb": "^2.3.3"
   },
   "devDependencies": {

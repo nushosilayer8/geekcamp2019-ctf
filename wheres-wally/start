@@ -9,35 +9,52 @@ fi
 
 name=$(basename $(pwd))
 
-container=$(buildah from node:10-alpine)
-buildah copy $container fakeflags.txt
-buildah copy $container flag.txt
+container=$(buildah from node:12-alpine)
+buildah config --user=root $container
+buildah run $container mkdir -p /app
+buildah config --workingdir=/app $container
 buildah copy $container index.html
 buildah copy $container package.json
 buildah copy $container yarn.lock
-buildah copy $container processor.js
 buildah copy $container server.js
 buildah run $container -- yarn
+buildah config --user=node $container
 buildah commit $container $name
 buildah rm $container
+
+containerp=$(buildah from puppeteer)
+buildah config --user=root $containerp
+buildah run $containerp mkdir -p /app
+buildah config --workingdir=/app $containerp
+buildah copy $containerp processor.js
+buildah copy $containerp package.json
+buildah copy $containerp yarn.lock
+buildah copy $containerp fakeflags.txt
+buildah copy $containerp flag.txt
+buildah run $containerp -- sh -c 'yarn && yarn add puppeteer'
+buildah config --user=node $containerp
+buildah config --cmd='node processor.js' $containerp
+buildah commit $containerp $name-processor
+buildah rm $containerp
 
 podman run --rm -d \
 	--read-only \
 	--name=$name-processor1 \
 	--network=host \
 	--env=REDIS_HOST=::1 \
-	$name node processor.js
+	$name-processor
 
 podman run --rm -d \
 	--read-only \
 	--name=$name-processor2 \
 	--network=host \
 	--env=REDIS_HOST=::1 \
-	$name node processor.js
+	$name-processor
 
 podman run --rm -d \
 	--read-only \
-	--name=$name-server \
+	--name=$name \
 	--network=host \
 	--env=REDIS_HOST=::1 \
-	$name node server.js
+	$name
+

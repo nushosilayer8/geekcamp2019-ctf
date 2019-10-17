@@ -44,7 +44,7 @@ async function perform(page, url, op) {
 		page.setViewport(op.viewport),
 		page.setExtraHTTPHeaders(op.headers),
 	]);
-	await page.goto(url, { timeout: 2000, waitUntil: 'domcontentloaded' });
+	await page.goto(url, { timeout: 8000, waitUntil: 'domcontentloaded' });
 }
 
 async function processor(browser, queue, n) {
@@ -73,7 +73,7 @@ async function processor(browser, queue, n) {
 
 async function main() {
 
-	const browser = await puppeteer.launch({ headless: true });
+	const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] }); 
 	const queue = kue.createQueue({
 		prefix: 'q',
 		redis: {

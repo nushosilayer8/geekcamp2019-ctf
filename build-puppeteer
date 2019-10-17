@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -e
+
+if [ "$USER" != 'podman-runner' ]; then
+	echo 'Please run as podman-runner'
+	exit 1
+fi
+
+name=puppeteer
+
+container=$(buildah from node:12)
+buildah run $container -- sh -c 'apt-get update && apt-get install -y libx11-xcb1 libxtst6 libnss3 libxss1 libasound2 libatk-bridge2.0-0 libgtk-3-0'
+buildah config --user=node $container
+buildah commit $container $name
+buildah rm $container

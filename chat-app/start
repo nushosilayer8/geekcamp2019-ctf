@@ -10,6 +10,7 @@ fi
 name=$(basename $(pwd))
 
 container=$(buildah from node:12-alpine)
+buildah config --user=root $container
 buildah run $container mkdir -p /app
 buildah config --workingdir=/app $container
 buildah copy $container package.json
@@ -18,9 +19,24 @@ buildah copy $container server.js
 buildah copy $container src src
 buildah copy $container public public
 buildah run $container -- sh -c 'yarn && yarn build'
+buildah config --user=node $container
 buildah config --cmd='node server.js' $container 
 buildah commit $container $name
 buildah rm $container
+
+containerp=$(buildah from puppeteer)
+buildah config --user=root $containerp
+buildah run $containerp mkdir -p /app
+buildah config --workingdir=/app $containerp
+buildah copy $containerp package.json
+buildah copy $containerp yarn.lock
+buildah copy $containerp admin.js
+buildah copy $containerp flag.txt
+buildah run $containerp -- sh -c 'yarn && yarn add puppeteer'
+buildah config --user=node $containerp
+buildah config --cmd='node admin.js' $containerp
+buildah commit $containerp $name-admin
+buildah rm $containerp
 
 podman run --rm -d \
 	--read-only \
@@ -28,3 +44,9 @@ podman run --rm -d \
 	--network=host \
 	--env=JWT_KEY=N6FYQJNSzV1N5S1ZiWQ9sYugJ1L73X0H \
 	$name
+
+podman run --rm -d \
+	--read-only \
+	--name=$name-admin \
+	--network=host \
+	$name-admin
