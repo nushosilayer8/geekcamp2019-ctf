@@ -19,6 +19,7 @@ buildah copy $container yarn.lock
 buildah copy $container server.js
 buildah run $container -- yarn
 buildah config --user=node $container
+buildah config --cmd='node server.js' $container
 buildah commit $container $name
 buildah rm $container
 
