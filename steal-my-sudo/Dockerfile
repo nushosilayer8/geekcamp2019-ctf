@@ -20,7 +20,6 @@ RUN echo 'stealmysudo:GgSytT8p0nWcaWblAy8ejHfQxcy6yOSY' | chpasswd
 USER stealmysudo 
 WORKDIR /home/stealmysudo
 RUN mkdir /home/stealmysudo/bin
-COPY update-ip /home/stealmysudo/bin
 RUN wget https://github.com/bootandy/dust/releases/download/v0.3.1/dust-v0.3.1-x86_64-unknown-linux-gnu.tar.gz \
 	&& tar -xvf dust-v0.3.1-x86_64-unknown-linux-gnu.tar.gz -C /home/stealmysudo/bin \
 	&& rm dust-v0.3.1-x86_64-unknown-linux-gnu.tar.gz

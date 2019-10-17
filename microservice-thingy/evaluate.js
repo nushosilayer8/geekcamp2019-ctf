@@ -14,7 +14,7 @@ const flagpage = () => flagpageContent;
 
 // Stuff
 
-const E2C_ENDPOINT = "https://e2c.mst.ctf.makerforce.io/"; // Check this out! Very cool microservice
+const E2C_ENDPOINT = "https://e2c.mst.ctf.makerforce.io:8443/"; // Check this out! Very cool microservice
 
 // Server
 

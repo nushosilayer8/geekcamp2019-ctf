@@ -1,4 +1,9 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+# Chat App
+
+You can chat with us through this app... Or steal our credentials
+
+Okay, that's not true. A bot reads messages for us.
 
 ## Available Scripts
 
