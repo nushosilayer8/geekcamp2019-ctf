@@ -33,7 +33,7 @@ export default {
 	created() {
 		(async () => {
 			try {
-				const res = await fetch('http://localhost:3000/api/flag', {
+				const res = await fetch('/api/flag', {
 					method: 'POST'
 				});
 				const message = await res.text();

@@ -1,0 +1,30 @@
+#!/bin/sh
+
+set -e
+
+if [ "$USER" != 'podman-runner' ]; then
+	echo 'Please run as podman-runner'
+	exit 1
+fi
+
+name=$(basename $(pwd))
+
+container=$(buildah from node:12-alpine)
+buildah run $container mkdir -p /app
+buildah config --workingdir=/app $container
+buildah copy $container package.json
+buildah copy $container yarn.lock
+buildah copy $container server.js
+buildah copy $container src src
+buildah copy $container public public
+buildah run $container -- sh -c 'yarn && yarn build'
+buildah config --cmd='node server.js' $container 
+buildah commit $container $name
+buildah rm $container
+
+podman run --rm -d \
+	--read-only \
+	--name=$name \
+	--network=host \
+	--env=JWT_KEY=N6FYQJNSzV1N5S1ZiWQ9sYugJ1L73X0H \
+	$name

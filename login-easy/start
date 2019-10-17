@@ -1,0 +1,24 @@
+#!/bin/sh
+
+set -e
+
+if [ "$USER" != 'podman-runner' ]; then
+	echo 'Please run as podman-runner'
+	exit 1
+fi
+
+name=$(basename $(pwd))
+
+container=$(buildah from productionwentdown/caddy)
+buildah copy $container index.html /srv/
+buildah copy $container main.js /srv/
+buildah copy $container success.html /srv/
+buildah copy $container Caddyfile /etc/Caddyfile
+buildah commit $container $name
+buildah rm $container
+
+podman run --rm -d \
+	--read-only \
+	--name=$name \
+	--network=host \
+	$name

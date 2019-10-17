@@ -1,5 +1,5 @@
-import { serve } from "https://deno.land/std/http/server.ts";
-const { readFileSync } = Deno;
+import { Server } from "https://deno.land/std/http/server.ts";
+const { readFileSync, listen } = Deno;
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
@@ -18,7 +18,8 @@ const E2C_ENDPOINT = "https://e2c.mst.ctf.makerforce.io/"; // Check this out! Ve
 
 // Server
 
-const s = serve("0.0.0.0:8080");
+const listener = listen({ hostname: 'localhost6', port: 4035 });
+const s = new Server(listener);
 
 const routes = {
 	GET: [{

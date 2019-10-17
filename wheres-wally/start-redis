@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -e
+
+if [ "$USER" != 'podman-runner' ]; then
+	echo 'Please run as podman-runner'
+	exit 1
+fi
+
+name=$(basename $(pwd))
+
+podman run --rm -d \
+	--read-only \
+	--name=$name-redis \
+	--volume=$(pwd)/redis.conf:/usr/local/etc/redis/redis.conf:ro \
+	--network=host \
+	redis:5-alpine /usr/local/etc/redis/redis.conf
+

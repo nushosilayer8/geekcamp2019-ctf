@@ -79,7 +79,6 @@ async function main() {
 		redis: {
 			port: 6379,
 			host: process.env.REDIS_HOST,
-			auth: process.env.REDIS_AUTH,
 			options: {
 			// see https://github.com/mranney/node_redis#rediscreateclient
 			}

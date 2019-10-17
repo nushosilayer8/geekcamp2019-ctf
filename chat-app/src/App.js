@@ -30,7 +30,7 @@ const useStyles = makeStyles(theme => ({
 	},
 }));
 
-const API_BASE = 'http://localhost:8080';
+const API_BASE = '';
 
 function App() {
 	const classes = useStyles();

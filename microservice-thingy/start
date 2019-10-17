@@ -1,0 +1,39 @@
+#!/bin/sh
+
+set -e
+
+if [ "$USER" != 'podman-runner' ]; then
+	echo 'Please run as podman-runner'
+	exit 1
+fi
+
+name=$(basename $(pwd))
+
+
+container1=$(buildah from hayd/deno:alpine-0.20.0)
+buildah copy $container1 evaluate.js
+buildah copy $container1 flag.txt
+buildah copy $container1 index.html
+buildah run $container1 -- deno fetch evaluate.js
+buildah config --entrypoint='deno evaluate.js --allow-net=localhost6:4035,e2c.mst.ctf.makerforce.io --allow-read' $container1
+buildah commit $container1 $name-evaluate
+buildah rm $container1
+
+container2=$(buildah from python:3.8-alpine)
+buildah copy $container2 equation_to_code.py
+buildah run $container2 -- pip install flask gunicorn
+buildah config --cmd='gunicorn --bind [::1]:4036 equation_to_code:app' $container2
+buildah commit $container2 $name-equation-to-code
+buildah rm $container2
+
+podman run --rm -d \
+	--read-only \
+	--name=$name-evaluate \
+	--network=host \
+	$name-evaluate
+
+podman run --rm -d \
+	--read-only \
+	--name=$name-equation-to-code \
+	--network=host \
+	$name-equation-to-code

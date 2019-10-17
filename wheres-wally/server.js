@@ -7,7 +7,6 @@ const queue = kue.createQueue({
 	redis: {
 		port: 6379,
 		host: process.env.REDIS_HOST,
-		auth: process.env.REDIS_AUTH,
 		options: {
 		// see https://github.com/mranney/node_redis#rediscreateclient
 		}
@@ -87,4 +86,4 @@ app.use(async ctx => {
 	}
 });
 
-app.listen(3000);
+app.listen(4788, '::1');

@@ -1,0 +1,82 @@
+[http]
+
+  [http.routers]
+    [http.routers.redirect]
+      rule = "HostRegexp(`.*`)"
+      service = "blank"
+      entryPoints = ["web"]
+      middlewares = ["redirect"]
+      
+    [http.routers.chat-app]
+      rule = "Host(`chat-app.ctf.makerforce.io`)"
+      service = "chat-app"
+      entryPoints = ["web-secure"]
+      [http.routers.chat-app.tls]
+        certResolver = "ctf"
+    [http.routers.login-easy]
+      rule = "Host(`login-easy.ctf.makerforce.io`)"
+      service = "login-easy"
+      entryPoints = ["web-secure"]
+      [http.routers.login-easy.tls]
+        certResolver = "ctf"
+    [http.routers.login-medium]
+      rule = "Host(`login-medium.ctf.makerforce.io`)"
+      service = "login-medium"
+      entryPoints = ["web-secure"]
+      [http.routers.login-medium.tls]
+        certResolver = "ctf"
+    [http.routers.microservice-thingy-evaluate]
+      rule = "Host(`mst.ctf.makerforce.io`)"
+      service = "microservice-thingy-evaluate"
+      entryPoints = ["web-secure"]
+      [http.routers.microservice-thingy-evaluate.tls]
+        certResolver = "ctf"
+    [http.routers.microservice-thingy-equation-to-code]
+      rule = "Host(`e2c.mst.ctf.makerforce.io`)"
+      service = "microservice-thingy-equation-to-code"
+      entryPoints = ["web-secure"]
+      [http.routers.microservice-thingy-equation-to-code.tls]
+        certResolver = "ctf"
+    [http.routers.so-deep]
+      rule = "Host(`so-deep.ctf.makerforce.io`)"
+      service = "so-deep"
+      entryPoints = ["web-secure"]
+      [http.routers.so-deep.tls]
+        certResolver = "ctf"
+    [http.routers.wheres-wally]
+      rule = "Host(`wheres-wally.ctf.makerforce.io`)"
+      service = "wheres-wally"
+      entryPoints = ["web-secure"]
+      [http.routers.wheres-wally.tls]
+        certResolver = "ctf"
+
+  [http.middlewares]
+    [http.middlewares.redirect.redirectScheme]
+      scheme = "https"
+
+  [http.services]
+    [http.services.blank.loadBalancer]
+      [[http.services.blank.loadBalancer.servers]]
+        url = "http://[::1]:4000/"
+
+    [http.services.chat-app.loadBalancer]
+      [[http.services.chat-app.loadBalancer.servers]]
+        url = "http://[::1]:4914/"
+    [http.services.login-easy.loadBalancer]
+      [[http.services.login-easy.loadBalancer.servers]]
+        url = "http://[::1]:4941/"
+    [http.services.login-medium.loadBalancer]
+      [[http.services.login-medium.loadBalancer.servers]]
+        url = "http://[::1]:4472/"
+    [http.services.microservice-thingy-evaluate.loadBalancer]
+      [[http.services.microservice-thingy-evaluate.loadBalancer.servers]]
+        url = "http://[::1]:4035/"
+    [http.services.microservice-thingy-equation-to-code.loadBalancer]
+      [[http.services.microservice-thingy-equation-to-code.loadBalancer.servers]]
+        url = "http://[::1]:4036/"
+    [http.services.so-deep.loadBalancer]
+      [[http.services.so-deep.loadBalancer.servers]]
+        url = "http://[::1]:4419/"
+    [http.services.wheres-wally.loadBalancer]
+      [[http.services.wheres-wally.loadBalancer.servers]]
+        url = "http://[::1]:4788/"

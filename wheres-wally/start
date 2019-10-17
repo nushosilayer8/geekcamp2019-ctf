@@ -1,0 +1,43 @@
+#!/bin/sh
+
+set -e
+
+if [ "$USER" != 'podman-runner' ]; then
+	echo 'Please run as podman-runner'
+	exit 1
+fi
+
+name=$(basename $(pwd))
+
+container=$(buildah from node:10-alpine)
+buildah copy $container fakeflags.txt
+buildah copy $container flag.txt
+buildah copy $container index.html
+buildah copy $container package.json
+buildah copy $container yarn.lock
+buildah copy $container processor.js
+buildah copy $container server.js
+buildah run $container -- yarn
+buildah commit $container $name
+buildah rm $container
+
+podman run --rm -d \
+	--read-only \
+	--name=$name-processor1 \
+	--network=host \
+	--env=REDIS_HOST=localhost6 \
+	$name node processor.js
+
+podman run --rm -d \
+	--read-only \
+	--name=$name-processor2 \
+	--network=host \
+	--env=REDIS_HOST=localhost6 \
+	$name node processor.js
+
+podman run --rm -d \
+	--read-only \
+	--name=$name-server \
+	--network=host \
+	--env=REDIS_HOST=localhost6 \
+	$name node server.js

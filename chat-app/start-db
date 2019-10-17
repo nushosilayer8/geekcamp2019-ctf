@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -e
+
+if [ "$USER" != 'podman-runner' ]; then
+	echo 'Please run as podman-runner'
+	exit 1
+fi
+
+name=$(basename $(pwd))
+
+podman run --rm -d \
+	--name=$name-rethinkdb \
+	--network=host \
+	rethinkdb rethinkdb --bind ::1 --no-default-bind --no-http-admin --initial-password JrpmrGMqwsZ9NAvYHoOS5VC8
+

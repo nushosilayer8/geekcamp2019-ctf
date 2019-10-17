@@ -11,9 +11,10 @@ const jwt = require('jsonwebtoken');
 const r = require('rethinkdb');
 let conn = null;
 r.connect({
-	host: 'localhost',
+	host: '::1',
 	port: 28015,
 	db: 'chatapp',
+	password: 'JrpmrGMqwsZ9NAvYHoOS5VC8',
 }).then(async c => {
 	conn = c;
 	try {
@@ -31,10 +32,12 @@ r.connect({
 
 app.use(koaBodyParser());
 app.use(async (ctx, next) => {
-	// CORS
+	// CORS For Development
+	/*
 	ctx.set('Access-Control-Allow-Origin', 'http://localhost:3000');
 	ctx.set('Access-Control-Allow-Methods', 'GET, PUT, PATCH, DELETE, POST, HEAD, OPTIONS');
 	ctx.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+	*/
 	await next();
 });
 
@@ -228,7 +231,7 @@ app.use(async (ctx, next) => {
 	}
 });
 
-app.use(async ctx => {
+app.use(async (ctx, next) => {
 	console.log(ctx.method, ctx.path);
 	// Match route
 	for (const route of routes) {
@@ -255,11 +258,14 @@ app.use(async ctx => {
 			return;
 		}
 	}
+	/*
 	ctx.body = 'Not Found';
 	ctx.type = 'text/html';
 	ctx.status = 404;
+	*/
+	await next();
 });
 
-app.use(koaStatic(path.join(__dirname, 'public')));
+app.use(koaStatic(path.join(__dirname, 'build')));
 
-app.listen(8080);
+app.listen(4914, '::1');
