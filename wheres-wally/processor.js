@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const kue = require('kue');
 const fs = require('fs');
 
-const fakeFlags = fs.readFileSync('fakeflags.txt', 'utf8').split('\n').filter(e => e).slice(50);
+const fakeFlags = fs.readFileSync('fakeflags.txt', 'utf8').split('\n').filter(e => e).slice(0, 60);
 const realFlags = fs.readFileSync('flag.txt', 'utf8').split('\n').filter(e => e);
 
 const fakeOps = fakeFlags.flatMap(f => {
@@ -47,20 +47,33 @@ async function perform(page, url, op) {
 	await page.goto(url, { timeout: 8000, waitUntil: 'networkidle0' });
 }
 
-async function processor(browser, queue, n) {
-	const page = await setup(browser);
+async function processor(browser, queue, n, count=4) {
+	const pages = [];
+	for (let i = 0; i < count; i++) {
+		pages.push(await setup(browser));
+	}
 	queue.process('page', async (job, done) => {
 		try {
 			const url = job.data.url;
 			const randOps = shuffle(ops);
 			console.log(`New job for ${url}`);
 
-			for (let i = 0; i < randOps.length; i++) {
-				const op = randOps[i];
-				job.progress(i, randOps.length);
-				//console.log(n, url, op.headers['X-Flag']);
-				await perform(page, url, op);
-				await page._client.send('Network.clearBrowserCookies');
+			const progress = 0;
+
+			for (let i = 0; i < randOps.length; i += count) {
+				const parallelOps = randOps.slice(i, i + count);
+				const all = Promise.all(
+					parallelOps.map((op, j) => {
+						if (!op) {
+							return;
+						}
+						job.progress(++progress, randOps.length);
+						//console.log(n, url, op.headers['X-Flag']);
+						await perform(pages[j], url, op);
+						await pages[j]._client.send('Network.clearBrowserCookies');
+					})
+				);
+				await all;
 			}
 
 			console.log(`Done job for ${url}`);
