@@ -44,7 +44,7 @@ async function perform(page, url, op) {
 		page.setViewport(op.viewport),
 		page.setExtraHTTPHeaders(op.headers),
 	]);
-	await page.goto(url, { timeout: 8000, waitUntil: 'domcontentloaded' });
+	await page.goto(url, { timeout: 8000, waitUntil: 'networkidle0' });
 }
 
 async function processor(browser, queue, n) {
