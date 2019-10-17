@@ -25,19 +25,19 @@ podman run --rm -d \
 	--read-only \
 	--name=$name-processor1 \
 	--network=host \
-	--env=REDIS_HOST=localhost6 \
+	--env=REDIS_HOST=::1 \
 	$name node processor.js
 
 podman run --rm -d \
 	--read-only \
 	--name=$name-processor2 \
 	--network=host \
-	--env=REDIS_HOST=localhost6 \
+	--env=REDIS_HOST=::1 \
 	$name node processor.js
 
 podman run --rm -d \
 	--read-only \
 	--name=$name-server \
 	--network=host \
-	--env=REDIS_HOST=localhost6 \
+	--env=REDIS_HOST=::1 \
 	$name node server.js
