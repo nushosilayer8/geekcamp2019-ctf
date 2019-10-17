@@ -28,10 +28,12 @@ r.connect({
 
 		const incog = await browser.createIncognitoBrowserContext();
 		const page = await incog.newPage();
+		page.on("pageerror", err => console.log(err));
 		await page.setCacheEnabled(false);
-		await page.goto('https://chat-app.ctf.makerforce.io:8443/account', { timeout: 5000, waitUntil: 'domcontentloaded' });
+		await page.goto('https://chat-app.ctf.makerforce.io:8443/pagemissing', { timeout: 5000, waitUntil: 'domcontentloaded' });
 		await page.evaluate(flag => {
 			localStorage.setItem('account', flag);
+			return localStorage.getItem('account');
 		}, flag);
 
 		const sites = message.match(/https?:\/\/[^\s]+/g);
@@ -39,13 +41,16 @@ r.connect({
 			for (const s of sites) {
 				console.log('opening ' + s);
 				try {
-					await page.goto(s, { timeout: 10000, waitUntil: 'domcontentloaded' });
+					await page.goto(s, { timeout: 10000, waitUntil: 'networkidle0' });
 				} catch (e) {
 					console.log(e);
 				}
 			}
 		}
 
+		await new Promise(resolve => {
+			setTimeout(resolve, 1000);
+		});
 		await incog.close();
 	});
 
