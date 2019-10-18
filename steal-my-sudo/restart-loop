@@ -6,5 +6,6 @@ while true; do
 	sleep 5m
 	echo "Doing restart!"
 	./restart
+	./restart-socat
 	echo "Restart done!"
 done

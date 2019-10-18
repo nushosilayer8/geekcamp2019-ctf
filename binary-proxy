@@ -1,0 +1,17 @@
+#!/bin/sh
+
+ports="4011 4840 4765 4845 4214 4619 4110 4705 4031"
+ip="2001:470:ed5d:f:5054:ff:fe6e:1b86"
+pidprefix="/tmp/binary-proxy"
+
+for pidfile in $pidprefix*; do
+	if ! [ -f $pidfile ]; then
+		continue
+	fi
+	kill $(cat $pidfile)
+done
+
+for port in $ports; do
+	socat TCP6-LISTEN:$port,fork,bind=$ip TCP:localhost4:$port &
+	echo $! > $pidprefix.$port.pid
+done

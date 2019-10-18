@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e
+#set -e
 
 if [ "$USER" != 'root' ]; then
 	echo 'Please run as root'
@@ -11,9 +11,13 @@ name=$(basename $(pwd))
 
 podman stop $name
 
+sleep 1s
+
 podman run --rm -d \
 	--name=$name \
 	--network=ctfprivate \
 	$name
+
+sleep 1s
 
 # --publish=4022:22 \

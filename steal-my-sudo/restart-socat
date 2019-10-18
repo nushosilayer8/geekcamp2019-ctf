@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if [ "$USER" != 'root' ]; then
+	echo 'Please run as root'
+	exit 1
+fi
+
+PIDFILE=/tmp/steal-my-sudo-socat.pid
+kill $(cat /tmp/steal-my-sudo-socat.pid)
+sleep 3s
+
+ADDR=$(podman inspect steal-my-sudo | grep GlobalIPv6Address | cut -d \" -f 4)
+su podman-runner -c "socat TCP6-LISTEN:4022,fork TCP:[$ADDR]:22" &
+
+echo $! > $PIDFILE
