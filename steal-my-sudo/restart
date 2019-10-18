@@ -9,7 +9,7 @@ fi
 
 name=$(basename $(pwd))
 
-buildah bud -t $name .
+podman stop $name
 
 podman run --rm -d \
 	--name=$name \

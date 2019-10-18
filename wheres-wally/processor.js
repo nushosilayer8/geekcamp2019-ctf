@@ -47,7 +47,7 @@ async function perform(page, url, op) {
 	await page._client.send('Network.clearBrowserCookies');
 }
 
-async function processor(browser, queue, n, count=4) {
+async function processor(browser, queue, n, count=2) {
 	const incog = await browser.createIncognitoBrowserContext();
 	const pages = [];
 	for (let i = 0; i < count; i++) {

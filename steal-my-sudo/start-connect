@@ -2,7 +2,7 @@
 
 set -e
 
-if [ "$USER" != 'root' ]; then
+if [ "$USER" != 'podman-runner' ]; then
 	echo 'Please run as podman-runner'
 	exit 1
 fi
@@ -10,18 +10,19 @@ fi
 name=$(basename $(pwd))
 
 container=$(buildah from ubuntu:cosmic)
+buildah run $container sh -c 'apt-get update && apt-get install -y openssh-client'
 buildah run $container mkdir -p /stuff
 buildah config --workingdir=/stuff $container
 buildah copy $container connect-loop
 buildah copy $container connect-script
 buildah copy $container key
 buildah copy $container key.pub
+buildah run $container chmod 600 key
 buildah config --cmd='./connect-loop' $container 
 buildah commit $container $name-connect
 buildah rm $container
 
-podman run --rm -d \
+podman run --rm \
 	--read-only \
 	--name=$name-connect \
-	--network=ctfprivate \
 	$name-connect

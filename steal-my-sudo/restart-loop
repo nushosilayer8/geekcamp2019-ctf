@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+while true; do
+	sleep 5m
+	echo "Doing restart!"
+	./restart
+	echo "Restart done!"
+done

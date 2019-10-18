@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+
+if [ "$USER" != 'ambrose' ]; then
+	echo 'Please run as ambrose'
+	exit 1
+fi
+
+ADDR=$(sudo podman inspect steal-my-sudo | grep GlobalIPv6Address | cut -d \" -f 4)
+#ADDR=fdda:dada:feed:1c08::b
+
+#socat TCP4-LISTEN:4022,fork TCP:[$ADDR]:22 &
+socat TCP6-LISTEN:4022,fork TCP:[$ADDR]:22
