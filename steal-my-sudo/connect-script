@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -e
+
+USERNAME=stealmysudo
+PASSWORD=GgSytT8p0nWcaWblAy8ejHfQxcy6yOSY
+HOST=fdda:dada:feed:1c08::a
+PORT=22
+KEY=key
+
+ssh -i $KEY -p $PORT $USERNAME@$HOST 'echo doing some stuff && sleep 2s'
+echo $PASSWORD | ssh -i $KEY -p $PORT $USERNAME@$HOST 'cd /usr/local && sudo -S ls -lah && sudo -S /home/stealmysudo/bin/dust && sleep 10s'

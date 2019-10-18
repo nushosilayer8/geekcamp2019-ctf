@@ -2,7 +2,7 @@
 
 set -e
 
-if [ "$USER" != 'podman-runner' ]; then
+if [ "$USER" != 'root' ]; then
 	echo 'Please run as podman-runner'
 	exit 1
 fi
@@ -14,5 +14,6 @@ buildah bud -t $name .
 podman run --rm -d \
 	--name=$name \
 	--network=ctfprivate \
-	--publish=4022:22 \
 	$name
+
+# --publish=4022:22 \

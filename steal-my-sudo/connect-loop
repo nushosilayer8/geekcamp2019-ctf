@@ -1,0 +1,7 @@
+#!/bin/sh
+
+while true; do
+	echo Connecting
+	./connect-script
+	sleep 5s
+done

@@ -32,8 +32,7 @@ function shuffle(a) {
     return a;
 }
 
-async function setup(browser) {
-	const incog = await browser.createIncognitoBrowserContext();
+async function setup(incog) {
 	const page = await incog.newPage();
 	await page.setCacheEnabled(false);
 	return page;
@@ -44,13 +43,15 @@ async function perform(page, url, op) {
 		page.setViewport(op.viewport),
 		page.setExtraHTTPHeaders(op.headers),
 	]);
-	await page.goto(url, { timeout: 8000, waitUntil: 'networkidle0' });
+	await page.goto(url, { timeout: 10000, waitUntil: 'networkidle0' });
+	await page._client.send('Network.clearBrowserCookies');
 }
 
 async function processor(browser, queue, n, count=4) {
+	const incog = await browser.createIncognitoBrowserContext();
 	const pages = [];
 	for (let i = 0; i < count; i++) {
-		pages.push(await setup(browser));
+		pages.push(await setup(incog));
 	}
 	queue.process('page', async (job, done) => {
 		try {
@@ -58,19 +59,19 @@ async function processor(browser, queue, n, count=4) {
 			const randOps = shuffle(ops);
 			console.log(`New job for ${url}`);
 
-			const progress = 0;
+			let progress = 0;
 
 			for (let i = 0; i < randOps.length; i += count) {
 				const parallelOps = randOps.slice(i, i + count);
 				const all = Promise.all(
-					parallelOps.map((op, j) => {
+					parallelOps.map(async (op, j) => {
 						if (!op) {
 							return;
 						}
-						job.progress(++progress, randOps.length);
 						//console.log(n, url, op.headers['X-Flag']);
+						console.log(`Op ${i+j} of ${randOps.length}`);
 						await perform(pages[j], url, op);
-						await pages[j]._client.send('Network.clearBrowserCookies');
+						job.progress(++progress, randOps.length);
 					})
 				);
 				await all;
@@ -78,6 +79,7 @@ async function processor(browser, queue, n, count=4) {
 
 			console.log(`Done job for ${url}`);
 		} catch (e) {
+			console.log(`Error: ${e}`);
 			done(e);
 		}
 		done();
