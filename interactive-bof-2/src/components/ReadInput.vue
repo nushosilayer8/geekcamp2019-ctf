@@ -45,7 +45,7 @@ export default class ReadInput extends Vue {
     @Watch('buffer')
     public onBufferChanged(newbuf: string) {
         let v = this.vardecl.find(x => x.name === this.wincondition.name);
-        if(v.type === 'longptr') {
+        if(v && v.type === 'longptr') {
             if(v && this.wincondition.value === this.toInt(newbuf, v)) {
                 this.$emit('win', newbuf);
             }
