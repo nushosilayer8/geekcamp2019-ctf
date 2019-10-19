@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -e
+
+if [ "$USER" != 'podman-runner' ]; then
+	echo 'Please run as podman-runner'
+	exit 1
+fi
+
+name=$(basename $(pwd))
+
+buildah bud -t $name .
+
+podman run --rm $@ \
+	--name=$name \
+	--publish=4765:9999 \
+	$name
+
