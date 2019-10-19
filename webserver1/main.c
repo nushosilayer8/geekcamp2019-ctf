@@ -13,6 +13,7 @@ int main() {
     setvbuf(stdin, NULL, _IONBF, 0);
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
+    alarm(10);
 
     while (1) {
         fgets(buffer, 0x400, stdin);

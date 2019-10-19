@@ -8,10 +8,14 @@ int main() {
     setvbuf(stdin, NULL, _IONBF, 0);
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
+    alarm(10);
 
     while (1) {
         fgets(buffer, 0x400, stdin);
         char input[400];
+        if(sscanf(buffer, "GET /exit/ HTTP/1.1", input) == 1) {
+            return 0;
+        }
         if(sscanf(buffer, "GET /input/%400s HTTP/1.1", input) == 1) {
             printf("HTTP/1.1 200 OK\n");
             printf("Server: lmao\n");

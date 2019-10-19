@@ -1,7 +1,7 @@
 from pwn import *
 
 if args.REMOTE:
-    p = remote("ctf.makerforce.io", 8010)
+    p = remote("pwn.ctf.makerforce.io", 4011)
 else:
     p = process("./webserver1")
 
